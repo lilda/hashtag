@@ -24,9 +24,6 @@ def create(request):
             news.user = request.user
             news.save()
             save_tag(news)
-            tags=tag_create(request.POST['content'])
-            news.tag.add(*tags)
-            news.save()
         return redirect("news")
          
     #create와 new함수를 합체
@@ -160,30 +157,27 @@ def search(request):
     tag = Tag.objects.filter(tag=request.GET["tag"]).first()
     newss=[]
     for hashtag in Hashtag.objects.filter(tag=tag) :
-         if tag == 0  :
-            return redirect ('home') 
-         else :
              newss.append(hashtag.news)
     return render(request, "search.html", {"newss":newss})
 
-def tag_list(request, tag): 
-    t = Tag.objects.get(tag=name)
-    newss = t.news_set.all()
-    return render(request,'tag_list.html',{'newss':newss,'tag':tag})
+#def tag_list(request, tag): 
+#    t = Tag.objects.get(tag=name)
+#    newss = t.news_set.all()
+#    return render(request,'tag_list.html',{'newss':newss,'tag':tag})
     
     
-def tag_create(content):
-    find_tags = "".join(re.findall('#\w{0,20}\s', content))
-    find_tags = re.sub("\s", "", find_tags)
-    temp_tags = re.split("#", find_tags)
-    tags = []
-    for temp_tag in temp_tags:
-        if temp_tag == '':
-            continue
-        else:
-            tag, flag = Tag.objects.get_or_create(tag=temp_tag)
-            tags.append(tag)
-    return tags
+#def tag_create(content):
+#    find_tags = "".join(re.findall('#\w{0,20}\s', content))
+#    find_tags = re.sub("\s", "", find_tags)
+#    temp_tags = re.split("#", find_tags)
+#    tags = []
+#    for temp_tag in temp_tags:
+#        if temp_tag == '':
+#            continue
+#        else:
+#            tag, flag = Tag.objects.get_or_create(tag=temp_tag)
+#            tags.append(tag)
+#    return tags
     
 #def tag_url(request):
     #if tag == tag:
@@ -198,11 +192,18 @@ def tag_create(content):
     
 def save_tag(news):
     content=news.content
-    p = re.compile("#([^\s#]{1,20})")
-    #리스트형태로 반환되어있음
-    tag_list = p.findall(content)
+    l1 = content.split("#")
+    l2 = []
+    l1.append(l1[0]) 
+    #1i에 li[0]을 추가해라 
+    for str in l1:
+        temp = str.split(" ")[0]
+        if len(temp) != 0:
+            l2.append(str.split(" ")[0])
+    for str in l2:
+        print(str)
     #태그 저장하기
-    for tag in tag_list:
+    for tag in l2:
         tag_obj = Tag.objects.filter(tag=tag)
         if not tag_obj.exists():
             tag_obj = Tag(tag=tag)
@@ -212,6 +213,10 @@ def save_tag(news):
         hashtag.news = news
         hashtag.tag = tag_obj
         hashtag.save()
+        
+        
+
+    
 
 def link(request):
-    pass
+        pass    
